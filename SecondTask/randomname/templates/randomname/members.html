@@ -1,0 +1,62 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <button onclick="getWinners()"> Получить победителей</button>
+    <h3>Список победителей</h3>
+    <ul class="winners_list"></ul>
+    <label for="add_delete_member">Введите имя участника</label>
+    <input id="add_delete_member"/>
+    <button onclick="addMember()"> Добавить участника</button>
+    <button onclick="deleteMember()"> Удалить участника</button>
+{% endblock content %}
+
+{% block extrajs %}
+    <script>
+        $(document).ready(function () {
+            getWinners();
+        });
+        function getWinners() {
+            var winners_list = $('.winners_list');
+            winners_list.empty();
+            $.ajax({
+                url: '{% url 'randomname:member_api' %}',
+                type: 'GET',
+                success: function (response) {
+
+                    response['winners'].forEach(function (value, i) {
+                        winners_list.append('<li>'+value+'</li>');
+                    })
+                }
+            })
+        }
+        function deleteMember() {
+            var name = $('#add_delete_member').val();
+            $.ajax({
+                url: '{% url 'randomname:member_api' %}',
+                type: 'DELETE',
+                data: JSON.stringify({
+                    'name' : name
+                }),
+                success: function (response) {
+                    alert(response['message'])
+                }
+            })
+        }
+        function addMember() {
+            var name = $('#add_delete_member').val();
+            $.ajax({
+                url: '{% url 'randomname:member_api' %}',
+                type: 'POST',
+                data: JSON.stringify({
+                    'name' : name
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType:"json",
+                success: function (response) {
+                    alert(response['message'])
+                }
+            })
+        }
+    </script>
+{% endblock extrajs %}
